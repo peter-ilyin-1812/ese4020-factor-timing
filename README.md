@@ -1,5 +1,7 @@
 ese 4020 final project - baseline checkpoint
 
+group: David, Saranya, Peter
+
 run:
   pip install numpy pandas scikit-learn matplotlib pyarrow
   python baseline.py --data data/ --out results/
