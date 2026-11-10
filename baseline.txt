@@ -1,0 +1,32 @@
+# Do past anomaly returns forecast next month's anomaly returns out of sample?
+
+## Group
+4020 Group: David, Saranya, Peter
+
+## Changes since the proposal
+The proposal's delta-hedged option target, option predictors and option trading costs need non-public data. OSAP firm-level files hold signals but no returns (those need CRSP), so the firm-level panel and idiosyncratic-volatility sort baseline go too. Per the feedback, the target is each OSAP predictor portfolio's next-month long-short return, forecast from past returns of all portfolios, against its historical mean. The decile Sharpe becomes a forecast-sign timing Sharpe. Kept: ridge, lasso, expanding window, gap, untouched final period.
+
+## Data
+Open Source Asset Pricing, release 2025.10, long-short returns following the original papers (https://huggingface.co/datasets/OpenSourceAP/CrossSection). This run uses 5 predictors (AnnouncementReturn, BetaFP, Mom12m, MomSeasonShort, STreversal) from a checksummed public GitHub copy (official site unreachable from our environment); the full 212-column file runs through the same code. Balanced panel: Nov 1971 to Dec 2024, 638 months, no missing values. Inputs: 12 monthly lags of all 5 returns = 60. Output: each portfolio's next-month return (percent). N = 626 target months x 5 portfolios. Dropped Sep-Oct 1971: AnnouncementReturn had 1 and 13 stocks per leg (rule: under 100).
+
+## Split
+Time order throughout. Final evaluation: Jan 2010 to Dec 2024 (180 months), untouched. Validation window: Jan 1990 to Dec 2009, scored by annual expanding-window refits, each trained on months ending 12 months before the scored year. In each training window, blocked 5-fold CV (contiguous folds, 12 months purged each side) picks the penalty. Scaling is fit on training rows only. Seed 4020, used only by the bootstrap.
+
+## Baseline
+Ridge (one per portfolio, shared penalty) on the 60 standardized lags. Grid: alpha = 10^0 to 10^6, 25 log-spaced values. CV chose 316 (7 of 20 refits), 562 (7), 1000 (3), 1778 (3), never a grid edge. Benchmarks: historical mean, and OLS on each portfolio's own last-month and 12-month mean return.
+
+## Result
+Pooled out-of-sample R squared vs historical mean, 1,200 forecasts (240 months x 5):
+Ridge +0.06%, 95% interval [-6.24%, +4.53%]: a tie.
+OLS -2.05% [-3.06%, -0.73%]: worse than the historical mean.
+Annualized Sharpe, holding each portfolio long or short by forecast sign: ridge 0.96, historical mean 0.99, difference -0.03 [-0.52, +0.39]: a tie.
+Intervals: circular block bootstrap over months, 12-month blocks, 2,000 draws, percentile method.
+
+## Issues found
+Ridge built a lead through the 1990s, peaked in 2001-2003 and lost it all in the 2009 momentum crash: the score hinges on a few crisis months. Ridge forecasts vary 12 times as much as the historical mean (SD 1.61% vs 0.13% monthly); on AnnouncementReturn ridge loses, -7.49% [-15.87%, -1.15%]. Look-ahead: BetaFP (2014) and MomSeasonShort (2008) were published after most of the validation window.
+
+## Next steps
+By 16 November. Saranya: load all 212 predictors; lasso and elastic net on the same folds. Peter: point-in-time filter dropping each predictor before its publication date. David: Sharpe comparison, turnover-based trading costs, figures. All: early draft; 2010-2024 untouched.
+
+## Code
+https://github.com/peter-ilyin-1812/ese4020-factor-timing
