@@ -1,4 +1,4 @@
-ese 4020 final project - baseline checkpoint
+ese 4020 final project
 
 group: David, Saranya, Peter
 
@@ -22,9 +22,9 @@ full data (not committed, download from branch 2025.10 of the link above):
   Portfolios/Full Sets OP/PredictorLSretWide.parquet
   SignalDoc.csv   (publication years, for --pit)
 
-  python experiments.py --data data/ --out results_5/                                    # 5 signals, ~10 s
-  python experiments.py --data PredictorLSretWide.parquet --out results_all/             # 152 signals, ~35 min on 2 cores
-  python experiments.py --data PredictorLSretWide.parquet --doc SignalDoc.csv --pit --models hm,ridge,lasso --out results_pit/   # ~5 min
+  python experiments.py --data data/ --out results_5/                                    
+  python experiments.py --data PredictorLSretWide.parquet --out results_all/             
+  python experiments.py --data PredictorLSretWide.parquet --doc SignalDoc.csv --pit --models hm,ridge,lasso --out results_pit/   
   python figures.py results_5 results_all results_pit --out paper/figs/
 
 long runs save one checkpoint per year in <out>/checkpoints/ and resume if restarted (--budget N stops after N seconds).
